@@ -16,11 +16,7 @@ Sufficient information about the author(s) is available [here](AUTHORS.md)
 
 ## Who should read this?
 
-This document is a *draft* specification; for a more engaging overview, [read here].
-
-- If your main focus is behavior trees, [start here].
-- If you are interested in GOAP, [read here].
-- If you think behavior trees have nothing to do with your daily programming drudge, yet would be proven wrong, [read here].
+This document is a *draft* specification; I am hoping to write a more engaging introduction to L3.
 
 ## Execution model
 
@@ -29,6 +25,18 @@ In L3, a session is assumed. Within the session several L3 programs are schedule
 Often, L3 programs are used for planning purposes. They drive low level effectors and run at or much below 10 Hz.
 
 By default, recording captures every operation at every frame, along with evaluation results. Records may be RLE compressed; costly re-evaluations may be avoided through memoization.
+
+In some embodiments ('persistent runtime'), L3 runtimes may use files (in lieu of dynamic memory) to store state.
+
+## Structure; labels, attributes and decorators; access
+
+An L3 program consists in a hierarchy of nodes; nodes in the L3 hierarchy may be annotated with labels and decorators.
+
+A label identifies a site in the L3 program, allowing site binding. Site binding may be used to associate persistent or semi-persistent data to specific program locations, and is also useful to access prior evaluation results.
+
+Both internal and external decorators and attributes may be defined. External decorators and attributes are visible from L3, but do not have a meaning from a language point of view. Whereas internal decorators serve a language specific purpose, such as implementing guard conditions.
+
+In general, please assume that L3 supports fairly standard access modifiers (such as public, or private). Access control may be used to scope label, attribute and decorator visibility.
 
 ## Units and modules
 
@@ -303,6 +311,8 @@ Where planning is involved, auto functions generate additional notifications and
 In L3, a class is defined as having fields, properties, constructors and methods. An instance is an object, which has a type. Classes may have constructors; fields may have default initializers.
 
 Interfaces declare properties and methods; an interface may also define methods, through leveraging the defined properties.
+
+At this point in time there is no strong commitment to supporting inheritance; delegation is suggested as a viable, sometimes better alternative; some support for inheritance is required to interact with a host language (such as C#).
 
 ## Decorators
 
