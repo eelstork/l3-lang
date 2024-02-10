@@ -6,7 +6,7 @@ L3 supports procedural, functional and objective programming.
 
 L3 unifies behavior trees, STRIPS style planning (such as goal oriented planning), problem solving (BFS/DFS/BeFS) and evolutionary programming (via STGP).
 
-There is a draft implementation. The implementation is a work in progress; you may follow this project (contribute, even!) [here].
+There is a draft implementation. The implementation may be made publicized in March 2024 or later.
 
 Transpective: remembering the past, while peering into the future.
 
