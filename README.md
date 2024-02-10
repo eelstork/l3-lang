@@ -6,13 +6,13 @@ L3 supports procedural, functional and objective programming.
 
 L3 unifies behavior trees, STRIPS style planning (such as goal oriented planning), problem solving (BFS/DFS/BeFS) and evolutionary programming (via STGP).
 
-There is a draft implementation. The implementation may be made publicized in March 2024 or later.
+A draft implementation may be publicized in March 2024 or later.
 
 Transpective: remembering the past, while peering into the future.
 
-*If you implement L3, or derive a language from this specification, or implement L3 inspired features, include a fair, explicit, prominent attribution notice in your documentation, such as "this language is inspired from L3, a programming originally designed by T.E.A de Souza".*
+*If you implement L3, or derive a language from this specification, or implement L3 inspired features, include a fair, explicit, prominent attribution notice in your documentation, such as "this language is inspired from L3, a programming language originally designed by T.E.A de Souza".*
 
-Sufficient information about the author(s) is available [here](AUTHORS.md)
+Information about the author(s) is available [here](AUTHORS.md).
 
 ## Who should read this?
 
@@ -20,23 +20,27 @@ This document is a *draft* specification; I am hoping to write a more engaging i
 
 ## Execution model
 
-In L3, a session is assumed. Within the session several L3 programs are scheduled for execution. Absent resource shortages, programs run at every tick, unless a program has requested to yield for a number of frames or a specific duration, or until an external agent (often an underlying effector) pings the L3 program.
+In L3, a session is assumed. Within the session several L3 programs are scheduled for execution. Absent resource shortages, programs run at every tick, unless a program has requested yielding until a condition (duration, number of frames, event, ping) is fulfilled.
 
-Often, L3 programs are used for planning purposes. They drive low level effectors and run at or much below 10 Hz.
+When used as planners, L3 programs driving low level effectors run at or below 10 Hz; in such cases a scheduler may postpone execution.
 
-By default, recording captures every operation at every frame, along with evaluation results. Records may be RLE compressed; costly re-evaluations may be avoided through memoization.
+By default, recording captures every operation at every frame, along with evaluation results. Execution records consist in detailed call stacks, and may be RLE compressed; costly re-evaluations may be avoided through memoization.
+
+Records may be persisted both between ticks and between sessions. Persisted records may include a mix of references and *sedimented* data representing unreachable objects; *sedimentation* is the process of producing an archival friendly description of an object. Although sedimented objects may have structure, and it may be possible to reconstruct sedimented objects, sedimentation does not equate persistence, and is not a serialization/deserialization mechanism.
 
 In some embodiments ('persistent runtime'), L3 runtimes may use files (in lieu of dynamic memory) to store state.
+
+L3 programs usually follow the tick or 'main schedule'; in some cases, mixed schedule execution is allowed; as a typical example, planning agents "tick", yet include in-tree, out-of-flow, asynchronous decorators handling apperception.
 
 ## Structure; labels, attributes and decorators; access
 
 An L3 program consists in a hierarchy of nodes; nodes in the L3 hierarchy may be annotated with labels and decorators.
 
-A label identifies a site in the L3 program, allowing site binding. Site binding may be used to associate persistent or semi-persistent data to specific program locations, and is also useful to access prior evaluation results.
+A label identifies a site in the L3 program, allowing site binding. Site binding may be used to associate persistent or semi-persistent data to specific program locations, access prior evaluation results, dynamically modifying regions in the L3 program.
 
-Both internal and external decorators and attributes may be defined. External decorators and attributes are visible from L3, but do not have a meaning from a language point of view. Whereas internal decorators serve a language specific purpose, such as implementing guard conditions.
+Internal and external decorators and attributes may be defined. Ordinarily an L3 program may access external decorators and attributes, however they do not have a meaning from a language point of view; whereas internal decorators implementing guard conditions and other features.
 
-In general, please assume that L3 supports fairly standard access modifiers (such as public, or private). Access control may be used to scope label, attribute and decorator visibility.
+Access restrictions affect labeled nodes, and may affect attributes; assume L3 supports standard access modifiers (such as public, or private).
 
 ## Units and modules
 
@@ -44,9 +48,9 @@ Units are associated with source files; a unit declares (membership to) a namesp
 
 A unit may pose as an external object or type bridged through the runtime, either through referencing or instantiation.
 
-Units contain procedures, functions, and type definitions.
+Units may contain procedures, functions and type definitions.
 
-A module specifies namespace configuration and cross-module dependencies; modules enforce architectural integrity. Configuration may involve disabling language features, such as recording or dynamic typing.
+A module specifies namespace configuration; modules enforce architectural integrity through declaring cross-module dependencies; configuration may involve disabling language features such as recording or dynamic typing.
 
 ## Literals and primitives
 
@@ -74,15 +78,15 @@ bool, float, int, pro, tri, status.
 
 ## Statuses and tasks
 
-Statuses may be returned either in lieu of returning nothing (void), or attached as (perhaps implied) meta-properties (when a function does return a value).
+In this specification, the word 'task' refers potentially time-consuming activities spanning several ticks. In most cases there isn't an object associated with a task. As an example "filling a cup" may involve calling functions and subfunctions. The task may be realized through several (perhaps non consecutive) invocations of a `Fill()` function; tasks provide a convenient model to interpret discrete event sequences.
 
-Statuses express the outcomes of a function, when thinking of the function as a task.
+*Statuses* express evaluation outcomes, when evaluations are considered from a task oriented perspective.
+
+Statuses may be returned either in lieu of returning nothing (void), or attached as (perhaps implied) meta-properties (when a function does return a value). Status functions and status expressions explicitly return a status. Unless explicitly disallowed, the result of an evaluation is ordinarily interpreted as having an implied status, and returning nothing (void) is interpreted as completing a task. Disallow this behaviour using the `nonstatus` modifier.
 
 Restricted statuses (otherwise known as certainties) limit uncertainty regarding the status of a given task. As an example, specifying "pending" indicates a timeful task which cannot fail (the task may only return `cont` or `done`).
 
 Additional metadata may be associated with a status; as an example, a 'cont' object may have a "delay" field indicating how long the task will take, or a success probability estimate.
-
-Whereas a status may be an object (stateful), a task is not; that is, L3 does not *primarily* require tasks to hold state.
 
 ## Unknowns and probabilities
 
@@ -90,31 +94,27 @@ Uncertainty may be expressed through probabilities or unknowns. The 'pro' type i
 
 Explicit unknowns and probabilities avoid confusion with statuses ("90% done is not the same as 90% likely").
 
-There is lingering consideration for expressing unknowns via nullable values (ref); however "there is nothing here" and "I don't know what is here" are distinct situations which should not be conflated.
+There is lingering consideration for expressing unknowns via nullable values; however "there is nothing here" and "I don't know what is here" are distinct situations which should not be confused.
 
-## Variables and typing
+## Variables and typing; variable declarations
 
-A variable is a name representing either a locally defined variable, or an accessible field or property.
+A variable is a name pointing at an accessible object. Whereas objects have a type, be it implied or explicitly declared, untyped variables are permitted.
 
-## Variable declarations
-
-A variable declaration implies the existence of a variable with optional typing and persistence requirements.
-
-In lieu of type, use `var` to signify implicit typing, or `dynamic` to signify dynamic typing.
+When declaring a variable, either specify the type, use `var` to signify implicit typing, or `dynamic` to signify dynamic typing.
 
 A variable may be declared inside an expression.
 
 Variable modifiers:
 
-`const` - specifies a variable which cannot be modified after creation
+`const` - specifies a variable which cannot be modified.
 
 Provisional modifiers:
 
 `ext` - specifies a variable attached to the underlying process. External variables persist between ticks and may be persisted across sessions.
 
-`public` - specifies a variable attached to the underlying process. The host environment may read from this variable.
+`public` - specifies a variable attached to the underlying process. The host environment may read from this variable (provisional).
 
-`mutable` - specifies a variable attached to the underlying process; the host environment may write to the variable (requires `public`).
+`mutable` - specifies a variable attached to the underlying process; the host environment has write access (requires `public`).
 
 Note: other than const, the above modifiers assume backing storage provided by the host environment. Alternatively, host side storage may be accessed through posing; a simple example of this consists in accessing a blackboard.
 
@@ -122,53 +122,50 @@ Note: other than const, the above modifiers assume backing storage provided by t
 
 A call signifies invoking a function; calls allow optionally named parameters.
 
-The *once* modifier indicates that a call will not be invoked more than once. Without further qualification the call will be invoked once during the current session.
-
-```
-once ([after|per] [event])
-```
+Calls allow modifiers (see "temporal clauses").
 
 ## Operators
 
-L3 supports common binary operators, and the ternary operator. Provisionally, binary operators may be implemented as n-ary expressions (as an example, + is implemented via the SUM n-ary operator).
+L3 supports common binary operators and the ternary operator; certain binary operators may be replaced with n-ary expressions (as an example, '+' may be implemented through the SUM n-ary operator) implemented as composites (see 'composite expressions', below)
 
-The escape operators `!(exp)` and `![val](exp)` may prefix an expression `exp`; in such cases:
+The escape operators `!(x)` and `![val](x)` may prefix an expression `x`; in such cases:
 
-- if X is null, the parent function returns 'exp' or, if 'exp' is ommited the parent function emits the "fail" status.
-- otherwise, the operator has no effect.
+- if x is null or failing (`fail`-valued), the parent function returns `val` or, if 'exp' is omitted, the parent function may emit the `fail` status, or null.
+- otherwise (that is, if x is not null), the operator has no effect.
 
 ## Composite expressions
 
 Composite expressions include blocks, selectors, sequences and activities.
 
-Blocks define statement sequences; statements execute in order, regardless of return value, or task state.
+Blocks define statement sequences; similar to conventional procedural programming, statements execute in order, regardless of the value returned by each node. Similar to many languages, blocks may be linearly represented as semi-colon separated sequences.
 
 Selectors and sequences implement behavior trees; that is, a sequence will execute until encountering failure, whereas a selector (aka "fallback operator") will execute until success is encountered.
 
 Activities are similar to selectors and sequences; in the case of an activity, control iterates nodes until the cont state is encountered.
 
-L3 supports ordered composites; ordered sequences, selectors and activities memorize an index pointing at the current task.
+L3 supports ordered composites; ordered sequences, selectors and activities memorize an index pointing at the current task; not all composite expressions may honor the `ordered` modifier.
 
-A label and description may be associated with a composite expression.
-
-Descriptions are used for commenting; the first line in a description may not exceed N characters.
-Labels may be used to dynamically replace composite expressions in a running L3 program.
+A label and description may be associated with a composite expression;
+the first line in a description (until a period '.' is encountered) may not exceed 80 characters.
 
 ## Temporal clauses and retrospective access
 
 Temporal clauses may be used to either confirm prior outcomes or fence execution conditionally
 
 ```
-did ... since ...
+did EVENT_X since EVENT_Y
 ```
 
+The above form queries the record for the first instance of an event X, since the last time another event Y, has occurred.
 
 ```
-once since ... did ...
-once per ...
+once since X did Y
+once per T
+n times since ...
+n times per ...
 ```
 
-As a parameter modifier used in conjuction with `once` or `n times`, `per ...` may be used to efficiently relate actions to specific arguments. Example
+The above forms may be attached to either functions, calls or parameters; mandating the number of times a given task may execute.
 
 ```
 // Who's here?
@@ -176,6 +173,8 @@ Person p = GetPerson(nearby, seeingMe: true, friend: true);
 // Greet pals once per day
 Greet(p once per day);
 ```
+
+In this context, differentiating between tasks and functions is worthwhile. `Greet` will 'tick' over and over, until `done` is returned; therefore, whereas the task has succeeded only once, irrelevant to the number of times a function as been called.
 
 Retrospective access is used to dereference past outcomes:
 
