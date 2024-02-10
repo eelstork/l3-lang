@@ -306,6 +306,23 @@ Where planning is involved, auto functions generate additional notifications and
 
 [Provisional] Where 'traverse' is used, an auto function will traverse the implied graph (depth first); via `enter` and `exit` blocks, autofunctions implement the visitor pattern.
 
+## Internal decorators
+
+In general, internal decorators are associated with functions and expressions. Minimally, a decorator consists in a labeled composite.
+
+### Guards; cancelling and skip
+
+A guard is used to conditionally determine whether to cancel or skip the execution of an expression; additionally guards may be associated with function.
+
+Cancelling causes the branch to not execute, return fail, not log an entry into the record (the cancellation may be logged).
+Skipping, causes an expression to succeed without reevaluation.
+
+### In/out of flow evaluation
+
+In some cases decorators are evaluated in-flow. In other cases, however, decorators do not follow the tick, and their evaluation (relative to that of the L3 program) is asynchronous.
+
+Primarily, out of flow evaluation is used to populate external variables, such as perception/apperception related state when using L3 to implement autonomous agents.
+
 ## Classes, instances and interfaces
 
 In L3, a class is defined as having fields, properties, constructors and methods. An instance is an object, which has a type. Classes may have constructors; fields may have default initializers.
