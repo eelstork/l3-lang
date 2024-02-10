@@ -82,11 +82,11 @@ Restricted statuses (otherwise known as certainties) limit uncertainty regarding
 
 Additional metadata may be associated with a status; as an example, a 'cont' object may have a "delay" field indicating how long the task will take, or a success probability estimate.
 
-Whereas a status may be an object, a task is not.
+Whereas a status may be an object (stateful), a task is not; that is, L3 does not *primarily* require tasks to hold state.
 
 ## Unknowns and probabilities
 
-Uncertainty may be expressed through probabilities or  unknowns. The 'pro' type identifies probabilities, whereas `trilean` supersets bool and comprises the 'maybe' logical value.
+Uncertainty may be expressed through probabilities or unknowns. The 'pro' type identifies probabilities, whereas `trilean` supersets bool and comprises the 'maybe' logical value.
 
 Explicit unknowns and probabilities avoid confusion with statuses ("90% done is not the same as 90% likely").
 
@@ -358,7 +358,7 @@ Prospective notifications are emitted when an auto function generates a plan. In
 
 Iteratively, agents may use prospective notifications to refine individual plans; this approach may be used either in adversarial or collaborative contexts.
 
-## Appendix A - Required features
+## Appendix A - Required and suggested features
 
 ### Post-casting
 
@@ -382,7 +382,7 @@ At compile time, existential clauses extend the concept of interface:
 - Therefore options are needed through which existential clauses mandate the existence of types though specified nomenclatures; mechanical resolution is required to materialize types and members, as opposed to (well, in addition of) compilers grumbling when things are missing.
 - The above requirement implies annotating missing implementations, so that machine agents can quickly walk developers through "fill in" sessions.
 
-Needless to say, MVC and its many avatars provide an example of how architectural patterns "work" for software, but contour an automation void which needs to be filled.
+Needless to say, MVC and its many avatars provide an example of how architectural patterns "work" for software, yet contour an automation void which needs to be filled.
 
 Another example of drudgery around both static and type associations is seen in the runtime/elements dissociation in the L3 implementation itself:
 - The design is articulate and regular. Sure, we reserve the option to make exceptions, only proving that "there is a rule".
@@ -411,13 +411,19 @@ Sort(lists); // sorting the list
 Sort(all lists)
 ```
 
-## Appendix A - Attributes
+### Memory nodes and notifications
+
+In some instances memory nodes may be used to reflect assumptions about the state of a given task (in this context, "task" may refer to a call, or a branch in a composite).
+
+Task state notifications are then used to (asynchronously) update the state of the memory node. In turn, task state notifications may provide event handling hooks.
+
+## Appendix B - Attributes
 
 [memoize] - applied to a function (?or a class), indicates that the target operates on a "same input, same output" basis and is suitable for memoization.
 
 [alias n.n] - applied to a function (? or a class) indicates that the target will tolerate a lag up to n.n time units, assuming **same-looking** input.
 
-## Appendix B - Embodiments
+## Appendix C - Embodiments
 
 At the time of writing, there is no plan to implement an L3 parser. L3 productions are represented in XML. Until a stable version of the language is availed, focusing on the AST without writing a parser does help refining the language without committing to a specific syntax.
 
