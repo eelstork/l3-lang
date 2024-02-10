@@ -10,6 +10,10 @@ There is a draft implementation. The implementation is a work in progress; you m
 
 Transpective: remembering the past, while peering into the future.
 
+*If you implement L3, or derive a language from this specification, or implement L3 inspired features, include a fair, explicit, prominent attribution notice in your documentation, such as "this language is inspired from L3, a programming originally designed by T.E.A de Souza".*
+
+Sufficient information about the author(s) is available [here](AUTHORS.md)
+
 ## Who should read this?
 
 This document is a *draft* specification; for a more engaging overview, [read here].
